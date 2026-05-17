@@ -20,8 +20,12 @@ la llamada LLM acotada se **inyectan** desde cada repo vía `ClassifyDeps`.
 - `classify`: `classifyExpense(input, deps)` (orquesta orden 1→6) +
   puros `classifyByTaxonomy`, `classifyByHistory`, `categoryIdForTerm`,
   `resolvePaymentMethod`, `resolveCurrency`, `inferVoucherType`.
-  Cada repo implementa `ClassifyDeps` (`getCategories`/`getHistory`/`llmClassify`);
-  el backend pasa `getHistory: []` hasta Fase 3.
+  Cada repo implementa `ClassifyDeps` (`getCategories`/`getHistory`/`llmClassify`).
+- `learninglog`: `buildLearningLogDoc(entry)` — constructor ÚNICO del doc
+  `users/{uid}/learning_log` (poda undefined + `tokens`; sin `createdAt`,
+  lo añade cada repo). La colección Firestore es la misma para web y
+  WhatsApp → el doc debe ser byte-compatible. Tipos `LearningLogEntryInput`,
+  `LearningLogDoc`, `LearningLogChannel`.
 - `types`: `ReceiptExtraction`, `VoiceExtraction`, `ExtractionError`, `Moneda`,
   `TaxonomyCategory`, `HistoryEntry`, `ClassificationResult`, `ClassifyDeps`.
 

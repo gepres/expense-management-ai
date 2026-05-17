@@ -15,3 +15,4 @@ export * from './prompts';
 export * from './parse';
 export * from './text';
 export * from './classify';
+export * from './learninglog';
