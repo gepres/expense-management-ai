@@ -1,13 +1,14 @@
 # @gastos/expense-ai
 
-**Single source of truth** de la lógica IA de extracción de gastos,
-compartida por `gastos-backend` (web) y `gastos-firebase-functions`
-(WhatsApp). Es TS **puro** (sin IO): prompts, config de modelos y
-parsing/normalización al esquema canónico (español).
+**Single source of truth** de la lógica IA de extracción **y clasificación**
+de gastos, compartida por `gastos-backend` (web) y
+`gastos-firebase-functions` (WhatsApp). Es TS **puro** (sin IO): prompts,
+config de modelos, parsing/normalización al esquema canónico (español) y el
+**ranking de clasificación** contra la taxonomía del usuario.
 
-Lo que **NO** vive aquí: acceso a Firestore, clientes Anthropic/OpenAI,
-inferencia contra la taxonomía del usuario (Fase 2) y el `learning_log`
-(Fase 3) — eso es el adaptador de cada repo.
+Lo que **NO** vive aquí: acceso a Firestore, clientes Anthropic/OpenAI y el
+`learning_log` (Fase 3). El acceso a datos (categorías/métodos/historial) y
+la llamada LLM acotada se **inyectan** desde cada repo vía `ClassifyDeps`.
 
 ## API
 
@@ -15,7 +16,14 @@ inferencia contra la taxonomía del usuario (Fase 2) y el `learning_log`
   `transcribeModel` (el entorno se **inyecta** como param, no lee `process.env`).
 - `prompts`: `buildReceiptExtractionPrompt()`, `buildVoiceExpensePrompt(transcript, todayISO)`.
 - `parse`: `extractJsonBlock`, `parseReceipt`, `parseVoice`, `isExtractionError`.
-- `types`: `ReceiptExtraction`, `VoiceExtraction`, `ExtractionError`, `Moneda`.
+- `text`: `normalizeForMatching`, `phraseMatches`, `tokenizeForLearning`, `tokenOverlap`.
+- `classify`: `classifyExpense(input, deps)` (orquesta orden 1→6) +
+  puros `classifyByTaxonomy`, `classifyByHistory`, `categoryIdForTerm`,
+  `resolvePaymentMethod`, `resolveCurrency`, `inferVoucherType`.
+  Cada repo implementa `ClassifyDeps` (`getCategories`/`getHistory`/`llmClassify`);
+  el backend pasa `getHistory: []` hasta Fase 3.
+- `types`: `ReceiptExtraction`, `VoiceExtraction`, `ExtractionError`, `Moneda`,
+  `TaxonomyCategory`, `HistoryEntry`, `ClassificationResult`, `ClassifyDeps`.
 
 ## Sinergia entre repos (cómo evitar drift)
 
