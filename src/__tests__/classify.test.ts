@@ -140,6 +140,23 @@ test('resolvePaymentMethod: text > inferred > fallback', () => {
   });
 });
 
+test('resolvePaymentMethod: pago digital NUNCA produce "efectivo"', () => {
+  // Garantía cross-repo: el bot escribe este `metodoPago`; el backend
+  // descuenta del bolsillo (cashBalance) SOLO si === "efectivo". Por eso
+  // un yape/plin/transferencia/tarjeta jamás debe resolver a "efectivo".
+  for (const m of ['yape', 'plin', 'transferencia', 'tarjeta'] as const) {
+    const r = resolvePaymentMethod(`pague 50 con ${m}`, []);
+    assert.equal(r.metodoPago, m);
+    assert.notEqual(r.metodoPago, 'efectivo');
+  }
+  // "efectivo" SOLO explícito o por fallback (sin método mencionado).
+  assert.equal(
+    resolvePaymentMethod('50 en efectivo', []).metodoPago,
+    'efectivo',
+  );
+  assert.equal(resolvePaymentMethod('50 almuerzo', []).metodoPago, 'efectivo');
+});
+
 test('resolveCurrency / inferVoucherType', () => {
   assert.equal(resolveCurrency('pague 10 dolares', 'PEN').moneda, 'USD');
   assert.equal(resolveCurrency('10 soles', 'USD').moneda, 'PEN');
