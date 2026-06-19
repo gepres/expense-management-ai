@@ -1,6 +1,6 @@
 {
   "name": "@gastos/expense-ai",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Lógica pura compartida de extracción + clasificación + bitácora de aprendizaje de gastos (prompts + modelos + parsing + ranking de taxonomía + schema learning_log). Single source of truth para gastos-backend y gastos-firebase-functions.",
   "private": true,
   "license": "UNLICENSED",

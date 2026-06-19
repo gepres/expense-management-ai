@@ -7,23 +7,29 @@
  * vive acá, acoplada al modelo resuelto (no en cada call-site).
  */
 
-export type ModelTier = 'primary' | 'helper';
+export type ModelTier = 'primary' | 'helper' | 'vision';
 
 export interface ModelEnv {
   ANTHROPIC_MODEL_PRIMARY?: string;
   ANTHROPIC_MODEL_HELPER?: string;
+  ANTHROPIC_MODEL_VISION?: string;
   OPENAI_MODEL_TRANSCRIBE?: string;
 }
 
 /** Defaults vigentes tras la migración 2026-05 (no se cae si falta la env). */
 const DEFAULTS: Record<ModelTier, string> = {
-  primary: 'claude-sonnet-4-6', // vision (comprobantes) + parse principal
+  primary: 'claude-sonnet-4-6', // parseo principal (texto/voz)
   helper: 'claude-haiku-4-5', // fallbacks acotados (fecha/taxonomía/método)
+  // OCR de comprobantes (imagen). Aislado de `primary` para poder bajarlo a
+  // Haiku 4.5 (~3× más barato) sin afectar el parse de texto ni el chat.
+  // Default = Sonnet → sin cambio de comportamiento hasta setear la env.
+  vision: 'claude-sonnet-4-6',
 };
 
 const ENV_KEYS: Record<ModelTier, keyof ModelEnv> = {
   primary: 'ANTHROPIC_MODEL_PRIMARY',
   helper: 'ANTHROPIC_MODEL_HELPER',
+  vision: 'ANTHROPIC_MODEL_VISION',
 };
 
 export function modelFor(tier: ModelTier, env: ModelEnv = {}): string {
